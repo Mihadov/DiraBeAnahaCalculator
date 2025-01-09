@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор платежей по схеме #дирабэанаха</title>
+</head>
+<body>
+    <h1>Калькулятор платежей</h1>
+
+    <!-- Поле ввода цены квартиры -->
+    <div>
+        <label for="totalPrice">Цена квартиры (руб.):</label>
+        <input type="number" id="totalPrice" value="1000000">
+    </div>
+
+    <!-- Кнопка для запуска расчётов -->
+    <div>
+        <button onclick="calculate()">Рассчитать</button>
+    </div>
+
+    <!-- Результат будет выводиться сюда -->
+    <div id="result"></div>
+
+    <script>
+    function calculate() {
+      // Получаем введённую стоимость
+      const totalPriceInput = document.getElementById('totalPrice');
+      const totalPrice = parseFloat(totalPriceInput.value);
+
+      // Проверка на корректность ввода
+      if (isNaN(totalPrice) || totalPrice <= 0) {
+        document.getElementById('result').innerHTML = "<p>Укажите корректную цену квартиры.</p>";
+        return;
+      }
+
+      // 1. Считаем 7% (при подписании)
+      const firstPayment = totalPrice * 0.07;
+
+      // 2. 13% через 45 дней => начинает начисляться ипотека
+      const secondPayment = totalPrice * 0.13;
+
+      // 3. Каждые полгода 10% (за 3 года будет 6 таких платежей)
+      const semiAnnualPayment = totalPrice * 0.10;
+      const numberOfSemiAnnual = 6; // 6 платежей за 3 года
+      // Сумма всех 10%-ных платежей
+      const totalSemiAnnualPayments = semiAnnualPayment * numberOfSemiAnnual;
+
+      // Примерная логика (упрощённая):
+      // К моменту окончания строительства:
+      // - Собственными деньгами внесено: 7% + 13% + (6 * 10%) = 70%,
+      //   то есть на примере 700K при цене 1 млн.
+      // - Остаток 30% идёт в конце строительства (или договариваться с банком).
+
+      // Для демонстрации выведем ключевые этапы (упрощённые данные):
+      // Вы можете дописать логику роста ежемесячного платежа
+      // по мере увеличения ипотечной суммы.
+      let resultHTML = `<h2>Результаты расчёта</h2>`;
+      resultHTML += `<p>Цена квартиры: ${totalPrice.toLocaleString()} руб.</p>`;
+      resultHTML += `<p>Первый взнос (7%): ${Math.round(firstPayment).toLocaleString()} руб.</p>`;
+      resultHTML += `<p>Второй взнос (13% через 45 дней): ${Math.round(secondPayment).toLocaleString()} руб.</p>`;
+      resultHTML += `<p>Каждые полгода (по 10%): ${Math.round(semiAnnualPayment).toLocaleString()} руб. × 6 = ${Math.round(totalSemiAnnualPayments).toLocaleString()} руб.</p>`;
+
+      // Прикидываем остаток после 70% внесений
+      const totalPaidBeforeEnd = firstPayment + secondPayment + totalSemiAnnualPayments;
+      const finalPercent = 1 - 0.70; // 30%
+      const finalRemaining = totalPrice * finalPercent;
+
+      resultHTML += `<p>Итого внесено к концу строительства (70%): ${Math.round(totalPaidBeforeEnd).toLocaleString()} руб.</p>`;
+      resultHTML += `<p>Осталось выплатить (30%): ${Math.round(finalRemaining).toLocaleString()} руб.</p>`;
+
+      // Условный пример ежемесячного платежа (УПРОЩЁН):
+      // Допустим, ставка банка (условно) 6% годовых, срок ~ 10 лет
+      // (Расчёт сделан чисто демонстрационно через упрощённую формулу процентов).
+      const annualRate = 0.06; // 6%
+      const months = 120; // 10 лет * 12 месяцев
+      // Простейшая формула аннуитетного платежа: M = P * (r / (1 - (1 + r)^(-n)))
+      // где r = monthlyRate, n = кол-во месяцев
+      const monthlyRate = annualRate / 12;
+      const mortgagePayment = finalRemaining * (monthlyRate / (1 - Math.pow(1 + monthlyRate, -months)));
+
+      resultHTML += `<h3>Пример расчёта ежемесячного платежа (упрощённая формула)</h3>`;
+      resultHTML += `<p>Ориентировочный ежемесячный платёж: ${Math.round(mortgagePayment).toLocaleString()} руб.</p>`;
+
+      // Выводим всё на экран
+      document.getElementById('result').innerHTML = resultHTML;
+    }
+    </script>
+</body>
+</html>
