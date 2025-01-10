@@ -128,4 +128,11 @@ window.onload = function () {
             calculate(); // Вызываем функцию расчёта
         }
     });
+
+    // Отслеживаем клик по кнопке "Рассчитать"
+    document.getElementById('calculateButton').addEventListener('click', function () {
+        // Отправляем событие в Simple Analytics
+        sa_event('Calculate Button Click');
+        //console.log('Событие отправлено в Simple Analytics');
+    });
 };
